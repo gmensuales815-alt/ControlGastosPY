@@ -1,0 +1,2528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ControlGastos PY • Banca &amp; Gestión Ejecutiva</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- jsPDF y AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <!-- Google Identity Services (OAuth 2.0 para Google Drive) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Fuente Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: contain;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .android-ripple {
+      transition: transform 0.14s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .android-ripple:active {
+      transform: scale(0.975);
+    }
+    .corporate-shadow {
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body class="text-slate-900 antialiased min-h-screen bg-slate-50 selection:bg-emerald-600 selection:text-white">
+
+  <!-- ======================================================== -->
+  <!-- 1. BÓVEDA DE ACCESO CORPORATIVO (ESTILO BANCARIO CLARO)   -->
+  <!-- ======================================================== -->
+  <div id="login-screen" class="min-h-screen flex flex-col justify-center px-5 py-8 bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100 relative overflow-hidden">
+    <!-- Acentos geométricos corporativos sutiles -->
+    <div class="pointer-events-none absolute -top-28 -right-28 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl"></div>
+    <div class="pointer-events-none absolute -bottom-28 -left-28 w-80 h-80 rounded-full bg-slate-900/5 blur-3xl"></div>
+
+    <div class="max-w-sm w-full mx-auto bg-white rounded-3xl corporate-shadow p-7 sm:p-8 border border-slate-200/90 relative z-10">
+      <!-- Encabezado Institucional -->
+      <div class="text-center mb-7">
+        <div class="w-16 h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center mx-auto mb-4 shadow-lg shadow-slate-900/15 border border-emerald-500/30 relative">
+          <span class="text-2xl font-extrabold tracking-tighter text-emerald-400">₲</span>
+          <span class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+            <i class="fa-solid fa-shield-halved text-[10px]"></i>
+          </span>
+        </div>
+        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">ControlGastos PY</h1>
+        <p class="text-[11px] text-emerald-700 mt-1 font-bold tracking-widest uppercase">Bóveda de Acceso Corporativo</p>
+      </div>
+
+      <!-- Formulario de Acceso Síncrono -->
+      <form id="form-login" class="space-y-4">
+        <div>
+          <label for="login-username" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 ml-1">Usuario</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+              <i class="fa-solid fa-user-tie text-xs"></i>
+            </span>
+            <input 
+              type="text" 
+              id="login-username" 
+              required 
+              autocomplete="username"
+              autocapitalize="none"
+              spellcheck="false"
+              placeholder="Identificador de usuario" 
+              class="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 focus:bg-white transition"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label for="login-password" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 ml-1">Contraseña</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+              <i class="fa-solid fa-lock text-xs"></i>
+            </span>
+            <input 
+              type="password" 
+              id="login-password" 
+              required 
+              autocomplete="current-password"
+              placeholder="••••••••" 
+              class="w-full pl-10 pr-11 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 focus:bg-white transition"
+            >
+            <button type="button" id="btn-toggle-login-pass" aria-label="Mostrar u ocultar contraseña" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 transition">
+              <i class="fa-solid fa-eye text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Interruptor: Recordar usuario y contraseña -->
+        <div class="flex items-center justify-between pt-0.5 px-1">
+          <label for="login-remember-me" class="inline-flex items-center cursor-pointer select-none group">
+            <div class="relative flex items-center">
+              <input type="checkbox" id="login-remember-me" class="peer sr-only">
+              <div class="w-9 h-5 bg-slate-200 border border-slate-300 rounded-full peer-checked:bg-emerald-600 peer-checked:border-emerald-600 transition-colors"></div>
+              <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full peer-checked:translate-x-4 transition-transform shadow-sm"></div>
+            </div>
+            <span class="ml-2.5 text-xs font-semibold text-slate-600 group-hover:text-slate-900 transition">
+              Recordar usuario y contraseña
+            </span>
+          </label>
+        </div>
+
+        <div id="login-error-box" class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold px-3.5 py-2.5 rounded-xl flex items-center space-x-2">
+          <i class="fa-solid fa-circle-exclamation text-rose-600 shrink-0"></i>
+          <span id="login-error-text">Credenciales inválidas.</span>
+        </div>
+
+        <button type="submit" id="btn-login-submit" class="android-ripple w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl shadow-md shadow-slate-900/15 transition flex items-center justify-center space-x-2 text-sm mt-2">
+          <i class="fa-solid fa-right-to-bracket text-xs text-emerald-400"></i>
+          <span>Ingresar al Sistema</span>
+        </button>
+      </form>
+
+      <!-- Pie de seguridad bancaria -->
+      <div class="mt-7 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+        <div class="flex items-center space-x-1.5">
+          <span id="login-net-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span id="login-net-label">En línea • Bóveda Local</span>
+        </div>
+        <span class="font-bold text-slate-400">PYG ₲</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 2. APLICACIÓN PRINCIPAL (BANCARIA CORPORATIVA CLARA)     -->
+  <!-- ======================================================== -->
+  <div id="app-shell" class="hidden flex-col pb-24 min-h-screen bg-slate-50">
+
+    <!-- Cabecera Superior Blanca con Borde Fino -->
+    <header class="bg-white/95 backdrop-blur-md text-slate-900 sticky top-0 z-30 border-b border-slate-200/90 shadow-2xs">
+      <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between gap-2">
+        <div class="flex items-center space-x-3 min-w-0">
+          <div class="w-10 h-10 shrink-0 rounded-2xl bg-slate-900 text-emerald-400 flex items-center justify-center font-extrabold text-lg shadow-sm border border-slate-800">
+            ₲
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center space-x-1.5">
+              <h1 class="font-extrabold text-sm tracking-tight text-slate-900 truncate" id="header-user-name">Usuario</h1>
+              <span id="header-role-badge" class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-900 text-emerald-400 tracking-wider shrink-0">
+                ADMIN
+              </span>
+            </div>
+            <!-- Indicador de estado en tiempo real -->
+            <div class="flex items-center space-x-1.5 mt-0.5">
+              <span id="header-sync-dot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+              <p id="header-sync-text" class="text-[11px] text-slate-500 font-semibold truncate">Local Seguro</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-1.5 shrink-0">
+          <button type="button" id="btn-header-sync-now" title="Sincronizar ahora" class="android-ripple bg-slate-100 hover:bg-emerald-50 text-emerald-700 w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center transition">
+            <i id="header-sync-icon" class="fa-solid fa-rotate text-xs"></i>
+          </button>
+          <button type="button" id="btn-logout" title="Cerrar Sesión" class="android-ripple bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 px-3 h-9 rounded-xl border border-slate-200 text-xs font-bold flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-right-from-bracket text-xs text-rose-600"></i>
+            <span>Salir</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenedor Central -->
+    <main class="max-w-md mx-auto w-full px-4 pt-4">
+
+      <!-- ==================================================== -->
+      <!-- PESTAÑA 1: REGISTRAR GASTO                           -->
+      <!-- ==================================================== -->
+      <section id="view-add" class="space-y-4">
+        <!-- Tarjeta Resumen Ejecutivo -->
+        <div class="bg-white p-5 rounded-3xl corporate-shadow border border-slate-200/80 relative overflow-hidden">
+          <div class="absolute right-0 top-0 w-28 h-28 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[11px] uppercase tracking-wider font-bold text-slate-400">Acumulado General</p>
+              <p id="card-total-general" class="text-2xl font-extrabold text-slate-900 tabular-nums mt-1">₲ 0</p>
+            </div>
+            <div class="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center">
+              <i class="fa-solid fa-vault text-base"></i>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Moneda: <strong class="text-slate-800">Guaraníes (PYG)</strong></span>
+            <span id="card-count-general" class="font-bold text-emerald-700">0 movimientos</span>
+          </div>
+        </div>
+
+        <!-- Formulario Estricto de Registro -->
+        <div class="bg-white p-5 rounded-3xl corporate-shadow border border-slate-200/80">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-extrabold text-slate-900 flex items-center">
+              <span class="w-8 h-8 rounded-xl bg-slate-900 text-emerald-400 flex items-center justify-center mr-2.5">
+                <i class="fa-solid fa-plus text-xs"></i>
+              </span>
+              Registrar Gasto Diario
+            </h2>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-2.5 py-1 rounded-full">PYG ₲</span>
+          </div>
+
+          <form id="form-expense" class="space-y-4">
+            <!-- Monto en Guaraníes con vista previa -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5 ml-1">
+                <label for="input-amount" class="text-xs font-bold text-slate-600">Monto (Guaraníes) <span class="text-rose-500">*</span></label>
+                <span id="amount-preview" class="text-xs font-extrabold text-emerald-700 tabular-nums bg-emerald-50 px-2 py-0.5 rounded-md">₲ 0</span>
+              </div>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-extrabold text-base">₲</span>
+                <input 
+                  type="number" 
+                  id="input-amount" 
+                  min="1" 
+                  step="1" 
+                  inputmode="numeric" 
+                  required 
+                  placeholder="Ej: 150000" 
+                  class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-base font-extrabold text-slate-900 tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 focus:bg-white transition"
+                >
+              </div>
+            </div>
+
+            <!-- Categoría y Fecha -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="select-category" class="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Categoría <span class="text-rose-500">*</span></label>
+                <select id="select-category" required class="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 focus:bg-white transition">
+                  <option value="Alimentación">Alimentación</option>
+                  <option value="Transporte">Transporte</option>
+                  <option value="Combustible">Combustible</option>
+                  <option value="Insumos/Oficina">Insumos/Oficina</option>
+                  <option value="Servicios">Servicios</option>
+                  <option value="Mantenimiento">Mantenimiento</option>
+                  <option value="Viáticos">Viáticos</option>
+                  <option value="Otros">Otros</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="input-date" class="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Fecha <span class="text-rose-500">*</span></label>
+                <input type="date" id="input-date" required class="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 focus:bg-white transition">
+              </div>
+            </div>
+
+            <!-- Concepto / Detalle -->
+            <div>
+              <label for="input-note" class="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
+                Concepto / Detalle <span class="text-rose-500">*</span>
+              </label>
+              <input type="text" id="input-note" required placeholder="Ej: Factura N° 001-002-12345, carga combustible..." class="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 focus:bg-white transition">
+            </div>
+
+            <!-- Foto del Comprobante Obligatorio -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5 ml-1">
+                <label for="input-receipt" class="text-xs font-bold text-slate-600">
+                  Comprobante / Factura <span class="text-rose-500">*</span>
+                </label>
+                <span id="receipt-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80">
+                  Obligatorio
+                </span>
+              </div>
+
+              <input type="file" id="input-receipt" accept="image/*" capture="environment" class="hidden">
+
+              <!-- Zona de carga vacía -->
+              <label id="receipt-upload-zone" for="input-receipt" class="cursor-pointer flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-300 hover:border-emerald-600 rounded-2xl bg-slate-50 hover:bg-emerald-50/40 transition text-center">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2">
+                  <i class="fa-solid fa-camera text-base"></i>
+                </div>
+                <p class="text-xs font-bold text-slate-800">Tomar foto o elegir de galería</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Compresión automática optimizada (máx. 1000px)</p>
+              </label>
+
+              <!-- Vista previa de foto comprimida -->
+              <div id="receipt-preview-box" class="hidden relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900">
+                <img id="receipt-preview-img" src="" alt="Vista previa del comprobante" class="w-full max-h-52 object-contain bg-slate-900">
+                <div class="p-2.5 bg-white border-t border-slate-200 text-slate-800 flex items-center justify-between gap-2">
+                  <div class="flex items-center space-x-1.5 min-w-0">
+                    <i class="fa-solid fa-circle-check text-emerald-600 text-xs shrink-0"></i>
+                    <span id="receipt-size-info" class="text-[11px] font-bold text-slate-700 truncate">Comprobante listo</span>
+                  </div>
+                  <div class="flex items-center space-x-1.5 shrink-0">
+                    <label for="input-receipt" class="cursor-pointer px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-[11px] font-bold text-slate-700 transition">
+                      Cambiar
+                    </label>
+                    <button type="button" id="btn-clear-receipt" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-[11px] font-bold text-rose-700 transition">
+                      Quitar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" id="btn-save-expense" class="android-ripple w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-md shadow-emerald-600/20 transition flex items-center justify-center space-x-2 text-sm">
+              <i class="fa-solid fa-check"></i>
+              <span>Guardar Gasto y Comprobante</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ==================================================== -->
+      <!-- PESTAÑA 2: HISTORIAL DE GASTOS                       -->
+      <!-- ==================================================== -->
+      <section id="view-list" class="hidden space-y-3">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <h2 class="text-base font-extrabold text-slate-900">Historial General</h2>
+            <p class="text-[11px] text-slate-500">Movimientos ordenados cronológicamente</p>
+          </div>
+          <span id="recent-count" class="text-xs bg-slate-900 text-white px-3 py-1 rounded-full font-bold tabular-nums">0 gastos</span>
+        </div>
+
+        <div id="recent-expenses-container" class="space-y-2.5">
+          <!-- Renderizado dinámico -->
+        </div>
+      </section>
+
+      <!-- ==================================================== -->
+      <!-- PESTAÑA 3: REPORTES Y EXPORTACIÓN PDF                -->
+      <!-- ==================================================== -->
+      <section id="view-reports" class="hidden space-y-4">
+        <!-- Filtro por Rango de Fechas -->
+        <div class="bg-white p-5 rounded-3xl corporate-shadow border border-slate-200/80 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-extrabold text-slate-900 flex items-center">
+              <span class="w-8 h-8 rounded-xl bg-slate-900 text-emerald-400 flex items-center justify-center mr-2.5">
+                <i class="fa-solid fa-calendar-days text-xs"></i>
+              </span>
+              Reporte por Período
+            </h2>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">PYG (₲)</span>
+          </div>
+
+          <!-- Botones rápidos de rango -->
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" id="btn-range-today" class="android-ripple py-1.5 px-2 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-bold rounded-xl text-[11px] border border-slate-200 transition">
+              Hoy
+            </button>
+            <button type="button" id="btn-range-month" class="android-ripple py-1.5 px-2 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-bold rounded-xl text-[11px] border border-slate-200 transition">
+              Este Mes
+            </button>
+            <button type="button" id="btn-range-all" class="android-ripple py-1.5 px-2 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-bold rounded-xl text-[11px] border border-slate-200 transition">
+              Todo
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label for="report-start" class="block text-[11px] font-bold text-slate-500 mb-1 ml-1">Desde</label>
+              <input type="date" id="report-start" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600">
+            </div>
+            <div>
+              <label for="report-end" class="block text-[11px] font-bold text-slate-500 mb-1 ml-1">Hasta</label>
+              <input type="date" id="report-end" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 pt-1">
+            <button type="button" id="btn-filter-reports" class="android-ripple py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs transition flex items-center justify-center space-x-1.5">
+              <i class="fa-solid fa-filter text-slate-600"></i>
+              <span>Filtrar Fechas</span>
+            </button>
+            <button type="button" id="btn-export-pdf" class="android-ripple py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs shadow-sm transition flex items-center justify-center space-x-1.5">
+              <i class="fa-solid fa-file-pdf text-emerald-400"></i>
+              <span>Descargar Reporte PDF</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- KPIs del Período (Total, Registros, Promedio) -->
+        <div class="grid grid-cols-3 gap-2.5">
+          <div class="bg-white p-3.5 rounded-2xl corporate-shadow border border-slate-200/80">
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Total Período</p>
+            <p id="report-total-amount" class="text-sm sm:text-base font-extrabold text-emerald-700 tabular-nums mt-1 truncate">₲ 0</p>
+          </div>
+          <div class="bg-white p-3.5 rounded-2xl corporate-shadow border border-slate-200/80">
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Registros</p>
+            <p id="report-total-count" class="text-base font-extrabold text-slate-900 tabular-nums mt-1">0</p>
+          </div>
+          <div class="bg-white p-3.5 rounded-2xl corporate-shadow border border-slate-200/80">
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Promedio</p>
+            <p id="report-avg-amount" class="text-sm sm:text-base font-extrabold text-slate-800 tabular-nums mt-1 truncate">₲ 0</p>
+          </div>
+        </div>
+
+        <!-- Gráfico Circular por Categoría -->
+        <div class="bg-white p-5 rounded-3xl corporate-shadow border border-slate-200/80">
+          <h3 class="text-xs font-extrabold text-slate-800 mb-3">Distribución por Categoría</h3>
+          <div class="relative h-48 w-full flex items-center justify-center">
+            <canvas id="categoryChart"></canvas>
+            <p id="chart-empty-msg" class="hidden text-xs text-slate-400 text-center">Sin datos en el rango seleccionado</p>
+          </div>
+        </div>
+
+        <!-- Desglose por Usuario Responsable -->
+        <div class="bg-white p-5 rounded-3xl corporate-shadow border border-slate-200/80 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-xs font-extrabold text-slate-900">Desglose por Usuario Responsable</h3>
+              <p class="text-[10px] text-slate-500">Participación por integrante en el período</p>
+            </div>
+            <span id="report-users-count" class="text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 px-2.5 py-0.5 rounded-full">0 usuarios</span>
+          </div>
+          <div id="report-users-container" class="space-y-2.5">
+            <!-- Renderizado dinámico -->
+          </div>
+        </div>
+
+        <!-- Detalle Filtrado y Buscador de Comprobantes -->
+        <div class="bg-white p-4 rounded-3xl corporate-shadow border border-slate-200/80 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-xs font-extrabold text-slate-900">Detalle y Auditoría de Comprobantes</h3>
+              <p class="text-[10px] text-slate-500">Inspecciona facturas y tickets del período</p>
+            </div>
+            <span id="report-filtered-badge" class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full">0 reg.</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="sm:col-span-2 relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                <i class="fa-solid fa-magnifying-glass text-[11px]"></i>
+              </span>
+              <input type="text" id="report-search-input" placeholder="Buscar concepto, usuario o fecha..." class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600">
+            </div>
+            <select id="report-receipt-filter" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600">
+              <option value="all">Todos</option>
+              <option value="with_receipt">Con comprobante</option>
+              <option value="without_receipt">Sin comprobante</option>
+            </select>
+          </div>
+
+          <div id="report-list-container" class="divide-y divide-slate-100 max-h-80 overflow-y-auto custom-scrollbar">
+            <!-- Detalle renderizado dinámicamente -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================== -->
+      <!-- PESTAÑA 4: SEGURIDAD (EXCLUSIVO ADMINISTRADOR)        -->
+      <!-- ==================================================== -->
+      <section id="view-security" class="hidden space-y-4">
+
+        <!-- MÓDULO A: NUBE Y RESPALDO (GOOGLE DRIVE) -->
+        <div class="bg-white p-5 rounded-3xl corporate-shadow border border-slate-200/80 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-9 h-9 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center">
+                <i class="fa-brands fa-google-drive text-base"></i>
+              </div>
+              <div>
+                <h2 class="text-sm font-extrabold text-slate-900">Nube y Respaldo (Google Drive)</h2>
+                <p class="text-[10px] text-slate-500">Base maestra Offline-First • Exclusivo Admin</p>
+              </div>
+            </div>
+            <span id="drive-badge-status" class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+              No vinculado
+            </span>
+          </div>
+
+          <!-- Estado cuando NO está vinculado -->
+          <div id="drive-unlinked-panel" class="space-y-3">
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              Vincula una cuenta de Google Drive para sincronizar automáticamente la base de datos (<code class="text-emerald-700 font-bold">ControlGastosPY_DB.json</code>). Sin conexión temporal, los cambios se encolan localmente y se suben al reconectar.
+            </p>
+
+            <div>
+              <label for="drive-client-id" class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 ml-1">
+                OAuth 2.0 Client ID (Google Cloud)
+              </label>
+              <input 
+                type="text" 
+                id="drive-client-id" 
+                placeholder="Ej: 123456789-abc.apps.googleusercontent.com" 
+                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600"
+              >
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              <button type="button" id="btn-connect-drive-oauth" class="android-ripple py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition flex items-center justify-center space-x-1.5 shadow-sm">
+                <i class="fa-brands fa-google"></i>
+                <span>Vincular Google Drive</span>
+              </button>
+              <button type="button" id="btn-connect-drive-sim" class="android-ripple py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 font-bold rounded-xl text-xs transition flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-flask text-emerald-700"></i>
+                <span>Modo Simulación Drive</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Estado cuando YA está vinculado -->
+          <div id="drive-linked-panel" class="hidden space-y-3">
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase text-slate-400">Cuenta Conectada</span>
+                <span id="drive-mode-tag" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">OAuth Activo</span>
+              </div>
+              <p id="drive-account-email" class="text-xs font-extrabold text-slate-900 truncate">cuenta@gmail.com</p>
+              <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/80 text-[11px]">
+                <div>
+                  <span class="text-slate-400 block text-[10px]">Última Sincronización</span>
+                  <strong id="drive-last-sync" class="text-slate-800 font-bold">Nunca</strong>
+                </div>
+                <div>
+                  <span class="text-slate-400 block text-[10px]">Cola Pendiente</span>
+                  <strong id="drive-pending-count" class="text-emerald-700 font-extrabold tabular-nums">0 cambios</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="btn-sync-drive-manual" class="android-ripple py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Sincronizar Ahora</span>
+              </button>
+              <button type="button" id="btn-unlink-drive" class="android-ripple py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold rounded-xl text-xs transition flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-link-slash"></i>
+                <span>Desvincular</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MÓDULO B: CREAR NUEVO USUARIO -->
+        <div class="bg-white p-5 rounded-3xl corporate-shadow border border-slate-200/80">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-extrabold text-slate-900 flex items-center">
+              <span class="w-8 h-8 rounded-xl bg-slate-900 text-emerald-400 flex items-center justify-center mr-2.5">
+                <i class="fa-solid fa-user-plus text-xs"></i>
+              </span>
+              Crear Nuevo Usuario
+            </h2>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider bg-slate-900 text-emerald-400 px-2.5 py-1 rounded-full">Admin</span>
+          </div>
+
+          <form id="form-create-user" class="space-y-3" autocomplete="off">
+            <div>
+              <label for="new-user-fullname" class="block text-xs font-bold text-slate-600 mb-1 ml-1">Nombre Completo</label>
+              <input type="text" id="new-user-fullname" required placeholder="Ej: Carlos Benítez" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 focus:bg-white transition">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="new-user-username" class="block text-xs font-bold text-slate-600 mb-1 ml-1">Usuario de Acceso</label>
+                <input type="text" id="new-user-username" required autocapitalize="none" placeholder="Ej: cbenitez" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 focus:bg-white transition">
+              </div>
+
+              <div>
+                <label for="new-user-password" class="block text-xs font-bold text-slate-600 mb-1 ml-1">Contraseña</label>
+                <input type="password" id="new-user-password" required placeholder="Mín. 4 caracteres" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 focus:bg-white transition">
+              </div>
+            </div>
+
+            <button type="submit" id="btn-create-user" class="android-ripple w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl shadow-sm transition flex items-center justify-center space-x-2 text-xs mt-1">
+              <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+              <span>Registrar Usuario Autorizado</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- MÓDULO C: CONTROL DE USUARIOS Y CONTRASEÑAS -->
+        <div class="bg-white p-5 rounded-3xl corporate-shadow border border-slate-200/80 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-extrabold text-slate-900">Usuarios y Contraseñas</h3>
+              <p class="text-[11px] text-slate-500">Cambiar clave o revocar cuentas secundarias</p>
+            </div>
+            <span id="users-count-badge" class="text-xs bg-slate-900 text-white px-2.5 py-1 rounded-full font-bold tabular-nums">0</span>
+          </div>
+
+          <div id="users-list-container" class="space-y-2.5">
+            <!-- Renderizado dinámico -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ==================================================== -->
+    <!-- BARRA DE NAVEGACIÓN INFERIOR (ANDROID)               -->
+    <!-- ==================================================== -->
+    <nav class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_20px_rgba(15,23,42,0.04)] z-40">
+      <div class="max-w-md mx-auto flex justify-around items-center h-16 px-2">
+        <button type="button" id="nav-btn-add" data-tab="add" class="nav-tab-btn flex-1 flex flex-col items-center justify-center py-1 text-slate-900 transition">
+          <div id="nav-pill-add" class="px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 transition-colors">
+            <i class="fa-solid fa-circle-plus text-base"></i>
+          </div>
+          <span class="text-[11px] font-bold mt-1">Registrar</span>
+        </button>
+
+        <button type="button" id="nav-btn-list" data-tab="list" class="nav-tab-btn flex-1 flex flex-col items-center justify-center py-1 text-slate-400 transition">
+          <div id="nav-pill-list" class="px-3.5 py-1 rounded-full bg-transparent transition-colors">
+            <i class="fa-solid fa-clock-rotate-left text-base"></i>
+          </div>
+          <span class="text-[11px] font-semibold mt-1">Historial</span>
+        </button>
+
+        <button type="button" id="nav-btn-reports" data-tab="reports" class="nav-tab-btn flex-1 flex flex-col items-center justify-center py-1 text-slate-400 transition">
+          <div id="nav-pill-reports" class="px-3.5 py-1 rounded-full bg-transparent transition-colors">
+            <i class="fa-solid fa-chart-pie text-base"></i>
+          </div>
+          <span class="text-[11px] font-semibold mt-1">Reportes</span>
+        </button>
+
+        <button type="button" id="nav-btn-security" data-tab="security" class="nav-tab-btn hidden flex-1 flex flex-col items-center justify-center py-1 text-slate-400 transition">
+          <div id="nav-pill-security" class="px-3.5 py-1 rounded-full bg-transparent transition-colors">
+            <i class="fa-solid fa-shield-halved text-base"></i>
+          </div>
+          <span class="text-[11px] font-semibold mt-1">Seguridad</span>
+        </button>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL PERSONALIZADO (CONFIRMACIÓN / CAMBIO DE CLAVE)     -->
+  <!-- ======================================================== -->
+  <div id="custom-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center space-x-3">
+        <div id="modal-icon-box" class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
+          <i id="modal-icon" class="fa-solid fa-key"></i>
+        </div>
+        <div>
+          <h3 id="modal-title" class="text-base font-extrabold text-slate-900">Confirmar Acción</h3>
+          <p id="modal-subtitle" class="text-xs text-slate-500 mt-0.5">Detalle de la operación</p>
+        </div>
+      </div>
+
+      <div id="modal-input-wrapper" class="hidden">
+        <label for="modal-input" class="block text-xs font-bold text-slate-600 mb-1.5">Nueva Contraseña</label>
+        <input type="password" id="modal-input" placeholder="Mínimo 4 caracteres" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600">
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5 pt-2">
+        <button type="button" id="modal-cancel-btn" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+          Cancelar
+        </button>
+        <button type="button" id="modal-confirm-btn" class="py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-sm transition">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL VISOR DE AUDITORÍA DE COMPROBANTE                  -->
+  <!-- ======================================================== -->
+  <div id="receipt-viewer-modal" class="hidden fixed inset-0 z-50 bg-slate-900/65 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col max-h-[90vh]">
+      <div class="bg-white border-b border-slate-200 px-5 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-file-invoice text-xs"></i>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-sm font-extrabold text-slate-900 truncate">Comprobante de Compra</h3>
+            <p id="viewer-receipt-subtitle" class="text-[10px] text-slate-500 truncate">Auditoría de respaldo fotográfico</p>
+          </div>
+        </div>
+        <button type="button" id="btn-close-viewer-top" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <div class="bg-slate-100 flex items-center justify-center overflow-auto max-h-[48vh] p-2">
+        <img id="viewer-receipt-img" src="" alt="Factura o Ticket adjunto" class="max-w-full max-h-[44vh] object-contain rounded-xl shadow-sm bg-white">
+      </div>
+
+      <div class="p-4 bg-white space-y-2.5 overflow-y-auto border-t border-slate-100">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+          <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400">Monto Registrado</p>
+            <p id="viewer-receipt-amount" class="text-lg font-extrabold text-emerald-700 tabular-nums">₲ 0</p>
+          </div>
+          <span id="viewer-receipt-category" class="text-xs font-bold bg-slate-100 text-slate-800 px-3 py-1 rounded-full">Categoría</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
+            <p class="text-[10px] font-bold text-slate-400 uppercase">Responsable</p>
+            <p id="viewer-receipt-user" class="font-bold text-slate-800 truncate mt-0.5">-</p>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
+            <p class="text-[10px] font-bold text-slate-400 uppercase">Fecha de Compra</p>
+            <p id="viewer-receipt-date" class="font-bold text-slate-800 mt-0.5">-</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
+          <p class="text-[10px] font-bold text-slate-400 uppercase">Concepto / Detalle</p>
+          <p id="viewer-receipt-note" class="text-xs font-semibold text-slate-800 mt-0.5 break-words">-</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5 pt-1">
+          <button type="button" id="btn-close-viewer-bottom" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+            Cerrar
+          </button>
+          <button type="button" id="viewer-download-btn" class="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center justify-center space-x-1.5">
+            <i class="fa-solid fa-download"></i>
+            <span>Descargar Imagen</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notificación Toast Flotante -->
+  <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 hidden">
+    <div id="toast-box" class="bg-slate-900 text-white px-4 py-2.5 rounded-2xl shadow-xl border border-slate-700/80 flex items-center space-x-2 text-xs font-semibold whitespace-nowrap">
+      <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+      <span id="toast-msg">Operación exitosa</span>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MOTOR OFFLINE-FIRST, RBAC Y GOOGLE DRIVE                 -->
+  <!-- ======================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      // ---------------------------------------------------------
+      // 1. CONSTANTES GLOBALES Y FORMATEADOR DE MONEDA (PYG ₲)
+      // ---------------------------------------------------------
+      const CURRENCY_SYMBOL = '₲';
+      const SESSION_STORAGE_KEY = 'controlgastos_py_session_v8';
+      const REMEMBER_CREDS_KEY = 'controlgastos_py_remember_v8';
+      const LOCAL_USERS_KEY = 'controlgastos_py_users_v8';
+      const LOCAL_EXPENSES_KEY = 'controlgastos_py_expenses_v8';
+      const DRIVE_CONFIG_KEY = 'controlgastos_py_drive_cfg_v8';
+      const DRIVE_DB_FILENAME = 'ControlGastosPY_DB.json';
+
+      const DEFAULT_ADMIN_ACCOUNT = {
+        id: 'admin',
+        username: 'admin',
+        displayName: 'Administrador Principal',
+        password: String(213386),
+        role: 'admin'
+      };
+
+      function formatPYG(amount) {
+        const numericVal = Math.round(Number(amount) || 0);
+        return `${CURRENCY_SYMBOL} ${numericVal.toLocaleString('es-PY', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        })}`;
+      }
+
+      // ---------------------------------------------------------
+      // 2. ESTADO LOCAL-FIRST Y PERSISTENCIA BLINDADA
+      // ---------------------------------------------------------
+      let currentUser = null;
+      let allUsers = loadLocalUsers();
+      let allExpenses = loadLocalExpenses();
+      let driveConfig = loadDriveConfig();
+      let filteredExpenses = [];
+      let categoryChartInstance = null;
+      let currentReceiptDataUrl = '';
+      let isSyncingNow = false;
+      let googleTokenClient = null;
+      let googleAccessToken = null;
+
+      function loadLocalUsers() {
+        try {
+          const raw = localStorage.getItem(LOCAL_USERS_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          const list = Array.isArray(parsed) ? parsed : [];
+          if (!list.some(u => (u.username || '').toLowerCase() === 'admin')) {
+            list.unshift({ ...DEFAULT_ADMIN_ACCOUNT });
+          }
+          return list;
+        } catch (e) {
+          return [{ ...DEFAULT_ADMIN_ACCOUNT }];
+        }
+      }
+
+      function saveLocalUsers(usersList) {
+        try {
+          localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(usersList));
+          return true;
+        } catch (e) {
+          console.warn('Error guardando usuarios localmente:', e);
+          return false;
+        }
+      }
+
+      function loadLocalExpenses() {
+        try {
+          const raw = localStorage.getItem(LOCAL_EXPENSES_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveLocalExpenses(expensesList) {
+        try {
+          localStorage.setItem(LOCAL_EXPENSES_KEY, JSON.stringify(expensesList));
+          return true;
+        } catch (e) {
+          if (e && e.name === 'QuotaExceededError') {
+            showToast('Memoria local casi llena. Sincroniza con Drive o libera registros antiguos.', 'error');
+          }
+          return false;
+        }
+      }
+
+      function loadDriveConfig() {
+        try {
+          const raw = localStorage.getItem(DRIVE_CONFIG_KEY);
+          const parsed = raw ? JSON.parse(raw) : null;
+          return {
+            linked: Boolean(parsed?.linked),
+            mode: parsed?.mode || 'none',
+            clientId: parsed?.clientId || '',
+            email: parsed?.email || '',
+            fileId: parsed?.fileId || '',
+            lastSyncAt: parsed?.lastSyncAt || null,
+            deletedIds: Array.isArray(parsed?.deletedIds) ? parsed.deletedIds : []
+          };
+        } catch (e) {
+          return {
+            linked: false,
+            mode: 'none',
+            clientId: '',
+            email: '',
+            fileId: '',
+            lastSyncAt: null,
+            deletedIds: []
+          };
+        }
+      }
+
+      function saveDriveConfig() {
+        try {
+          localStorage.setItem(DRIVE_CONFIG_KEY, JSON.stringify(driveConfig));
+        } catch (e) {
+          console.warn('No se pudo guardar config de Drive:', e);
+        }
+      }
+
+      // ---------------------------------------------------------
+      // 2B. GESTIÓN DE CREDENCIALES RECORDADAS (LOCALSTORAGE)
+      // ---------------------------------------------------------
+      function encodeCredentialToken(text) {
+        try {
+          const bytes = new TextEncoder().encode(String(text));
+          let bin = '';
+          bytes.forEach(b => { bin += String.fromCharCode(b); });
+          return btoa(bin);
+        } catch (e) {
+          return '';
+        }
+      }
+
+      function decodeCredentialToken(encoded) {
+        try {
+          const bin = atob(String(encoded));
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) {
+            bytes[i] = bin.charCodeAt(i);
+          }
+          return new TextDecoder().decode(bytes);
+        } catch (e) {
+          return '';
+        }
+      }
+
+      function saveRememberedCredentials(username, password) {
+        try {
+          const payload = {
+            u: encodeCredentialToken(username),
+            p: encodeCredentialToken(password),
+            savedAt: Date.now()
+          };
+          localStorage.setItem(REMEMBER_CREDS_KEY, JSON.stringify(payload));
+        } catch (e) {
+          console.warn('No se pudieron recordar las credenciales:', e);
+        }
+      }
+
+      function loadRememberedCredentials() {
+        try {
+          const raw = localStorage.getItem(REMEMBER_CREDS_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (!parsed || !parsed.u || !parsed.p) return null;
+          const username = decodeCredentialToken(parsed.u);
+          const password = decodeCredentialToken(parsed.p);
+          if (!username || !password) return null;
+          return { username, password };
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function clearRememberedCredentials() {
+        try {
+          localStorage.removeItem(REMEMBER_CREDS_KEY);
+        } catch (e) { /* noop */ }
+      }
+
+      function applyRememberedCredentialsToLoginForm() {
+        const userField = document.getElementById('login-username');
+        const passField = document.getElementById('login-password');
+        const rememberCheckbox = document.getElementById('login-remember-me');
+        if (!userField || !passField || !rememberCheckbox) return;
+
+        const saved = loadRememberedCredentials();
+        if (saved) {
+          userField.value = saved.username;
+          passField.value = saved.password;
+          rememberCheckbox.checked = true;
+        } else {
+          userField.value = '';
+          passField.value = '';
+          rememberCheckbox.checked = false;
+        }
+      }
+
+      // ---------------------------------------------------------
+      // 3. MOTOR DE SINCRONIZACIÓN LOCAL-FIRST <-> GOOGLE DRIVE
+      // ---------------------------------------------------------
+      function getPendingChangesCount() {
+        const pendingExpenses = allExpenses.filter(e => e.syncStatus !== 'synced').length;
+        const pendingUsers = allUsers.filter(u => u.syncStatus && u.syncStatus !== 'synced').length;
+        const pendingDeletes = (driveConfig.deletedIds || []).length;
+        return pendingExpenses + pendingUsers + pendingDeletes;
+      }
+
+      function updateSyncStatusUI() {
+        const isOnline = navigator.onLine;
+        const pendingCount = getPendingChangesCount();
+
+        const loginDot = document.getElementById('login-net-dot');
+        const loginLabel = document.getElementById('login-net-label');
+        if (loginDot && loginLabel) {
+          if (isOnline) {
+            loginDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+            loginLabel.innerText = 'En línea • Bóveda Local';
+          } else {
+            loginDot.className = 'w-2 h-2 rounded-full bg-amber-500';
+            loginLabel.innerText = 'Sin internet • Modo Local';
+          }
+        }
+
+        const headerDot = document.getElementById('header-sync-dot');
+        const headerText = document.getElementById('header-sync-text');
+        if (headerDot && headerText) {
+          if (!driveConfig.linked) {
+            headerDot.className = isOnline ? 'w-2 h-2 rounded-full bg-emerald-500 shrink-0' : 'w-2 h-2 rounded-full bg-amber-500 shrink-0';
+            headerText.innerText = isOnline
+              ? `Local Seguro • ${allExpenses.length} reg.`
+              : 'Sin red • Local Seguro';
+          } else if (!isOnline) {
+            headerDot.className = 'w-2 h-2 rounded-full bg-amber-500 shrink-0';
+            headerText.innerText = `${pendingCount} pendiente${pendingCount === 1 ? '' : 's'}`;
+          } else if (isSyncingNow) {
+            headerDot.className = 'w-2 h-2 rounded-full bg-sky-500 animate-pulse shrink-0';
+            headerText.innerText = 'Sincronizando Drive...';
+          } else if (pendingCount > 0) {
+            headerDot.className = 'w-2 h-2 rounded-full bg-amber-500 shrink-0';
+            headerText.innerText = `${pendingCount} pendiente${pendingCount === 1 ? '' : 's'}`;
+          } else {
+            headerDot.className = 'w-2 h-2 rounded-full bg-emerald-500 shrink-0';
+            headerText.innerText = 'Drive Sincronizado';
+          }
+        }
+
+        renderDriveAdminPanel();
+      }
+
+      function renderDriveAdminPanel() {
+        const badge = document.getElementById('drive-badge-status');
+        const unlinkedPanel = document.getElementById('drive-unlinked-panel');
+        const linkedPanel = document.getElementById('drive-linked-panel');
+        if (!badge || !unlinkedPanel || !linkedPanel) return;
+
+        const pendingCount = getPendingChangesCount();
+
+        if (!driveConfig.linked) {
+          badge.innerText = 'No vinculado';
+          badge.className = 'text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200';
+          unlinkedPanel.classList.remove('hidden');
+          linkedPanel.classList.add('hidden');
+          if (driveConfig.clientId) {
+            document.getElementById('drive-client-id').value = driveConfig.clientId;
+          }
+        } else {
+          badge.innerText = navigator.onLine ? 'Conectado' : 'En espera de red';
+          badge.className = navigator.onLine
+            ? 'text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200'
+            : 'text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
+
+          unlinkedPanel.classList.add('hidden');
+          linkedPanel.classList.remove('hidden');
+
+          document.getElementById('drive-mode-tag').innerText =
+            driveConfig.mode === 'simulation' ? 'Modo Simulación' : 'Google OAuth 2.0';
+          document.getElementById('drive-account-email').innerText =
+            driveConfig.email || 'Cuenta Google Drive vinculada';
+          document.getElementById('drive-last-sync').innerText =
+            driveConfig.lastSyncAt ? new Date(driveConfig.lastSyncAt).toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' }) : 'Pendiente';
+          document.getElementById('drive-pending-count').innerText =
+            `${pendingCount} ${pendingCount === 1 ? 'cambio' : 'cambios'}`;
+          document.getElementById('drive-pending-count').className =
+            pendingCount > 0 ? 'text-amber-600 font-extrabold tabular-nums' : 'text-emerald-700 font-extrabold tabular-nums';
+        }
+      }
+
+      async function syncWithGoogleDrive(isManual = false) {
+        if (!driveConfig.linked) {
+          if (isManual) {
+            showToast('Vincule Google Drive en Seguridad (Admin)', 'error');
+          }
+          updateSyncStatusUI();
+          return;
+        }
+
+        if (!navigator.onLine) {
+          if (isManual) {
+            showToast('Sin internet. Cambios guardados en cola local.', 'error');
+          }
+          updateSyncStatusUI();
+          return;
+        }
+
+        if (isSyncingNow) return;
+        isSyncingNow = true;
+        const syncIcon = document.getElementById('header-sync-icon');
+        if (syncIcon) syncIcon.classList.add('fa-spin');
+        updateSyncStatusUI();
+
+        try {
+          if (driveConfig.mode === 'simulation') {
+            await new Promise(resolve => setTimeout(resolve, 550));
+
+            allExpenses = allExpenses.map(exp => ({ ...exp, syncStatus: 'synced' }));
+            allUsers = allUsers.map(usr => ({ ...usr, syncStatus: 'synced' }));
+            driveConfig.deletedIds = [];
+            driveConfig.lastSyncAt = new Date().toISOString();
+
+            saveLocalExpenses(allExpenses);
+            saveLocalUsers(allUsers);
+            saveDriveConfig();
+
+            if (isManual) {
+              showToast('Base de datos sincronizada con Google Drive');
+            }
+          } else if (driveConfig.mode === 'oauth') {
+            if (!googleAccessToken) {
+              await requestGoogleOAuthToken(isManual);
+            }
+
+            if (!googleAccessToken) {
+              if (isManual) {
+                showToast('Autoriza el acceso temporal a Google Drive para sincronizar', 'error');
+              }
+              return;
+            }
+
+            await performRealDriveApiSync();
+            if (isManual) {
+              showToast('Sincronizado con Google Drive exitosamente');
+            }
+          }
+        } catch (err) {
+          console.warn('Sincronización en espera por acceso temporal a Drive:', err);
+          if (isManual) {
+            showToast('Acceso temporal a Drive no disponible. Guardado local seguro.', 'error');
+          }
+        } finally {
+          isSyncingNow = false;
+          if (syncIcon) syncIcon.classList.remove('fa-spin');
+          updateSyncStatusUI();
+          refreshAllViews();
+        }
+      }
+
+      async function performRealDriveApiSync() {
+        const headers = { Authorization: `Bearer ${googleAccessToken}` };
+
+        let fileId = driveConfig.fileId;
+        if (!fileId) {
+          const query = encodeURIComponent(`name='${DRIVE_DB_FILENAME}' and trashed=false`);
+          const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`, { headers });
+          if (!searchRes.ok) throw new Error('Error consultando Drive API');
+          const searchData = await searchRes.json();
+          if (searchData.files && searchData.files.length > 0) {
+            fileId = searchData.files[0].id;
+            driveConfig.fileId = fileId;
+          }
+        }
+
+        if (fileId) {
+          const downloadRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers });
+          if (downloadRes.ok) {
+            const remoteDb = await downloadRes.json();
+            mergeRemoteDatabase(remoteDb);
+          }
+        }
+
+        allExpenses = allExpenses.map(exp => ({ ...exp, syncStatus: 'synced' }));
+        allUsers = allUsers.map(usr => ({ ...usr, syncStatus: 'synced' }));
+        driveConfig.deletedIds = [];
+        driveConfig.lastSyncAt = new Date().toISOString();
+
+        const payload = JSON.stringify({
+          app: 'ControlGastos PY',
+          currency: 'PYG',
+          updatedAt: driveConfig.lastSyncAt,
+          users: allUsers,
+          expenses: allExpenses
+        });
+
+        const metadata = { name: DRIVE_DB_FILENAME, mimeType: 'application/json' };
+        const boundary = '-------ControlGastosPYBoundary314159';
+        const multipartBody =
+          `--${boundary}\r\n` +
+          `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
+          `${JSON.stringify(metadata)}\r\n` +
+          `--${boundary}\r\n` +
+          `Content-Type: application/json\r\n\r\n` +
+          `${payload}\r\n` +
+          `--${boundary}--`;
+
+        const uploadUrl = fileId
+          ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+          : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+
+        const uploadRes = await fetch(uploadUrl, {
+          method: fileId ? 'PATCH' : 'POST',
+          headers: {
+            Authorization: `Bearer ${googleAccessToken}`,
+            'Content-Type': `multipart/related; boundary="${boundary}"`
+          },
+          body: multipartBody
+        });
+
+        if (!uploadRes.ok) throw new Error('Error subiendo respaldo a Drive');
+        const uploadedMeta = await uploadRes.json();
+        if (uploadedMeta.id) {
+          driveConfig.fileId = uploadedMeta.id;
+        }
+
+        saveLocalExpenses(allExpenses);
+        saveLocalUsers(allUsers);
+        saveDriveConfig();
+      }
+
+      function mergeRemoteDatabase(remoteDb) {
+        if (!remoteDb || typeof remoteDb !== 'object') return;
+        const deletedSet = new Set(driveConfig.deletedIds || []);
+
+        if (Array.isArray(remoteDb.expenses)) {
+          const localMap = new Map(allExpenses.map(e => [e.id, e]));
+          remoteDb.expenses.forEach(rem => {
+            if (rem && rem.id && !deletedSet.has(rem.id) && !localMap.has(rem.id)) {
+              localMap.set(rem.id, { ...rem, syncStatus: 'synced' });
+            }
+          });
+          allExpenses = Array.from(localMap.values()).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        }
+
+        if (Array.isArray(remoteDb.users)) {
+          const userMap = new Map(allUsers.map(u => [(u.username || '').toLowerCase(), u]));
+          remoteDb.users.forEach(remU => {
+            const key = (remU?.username || '').toLowerCase();
+            if (key && !userMap.has(key)) {
+              userMap.set(key, { ...remU, syncStatus: 'synced' });
+            }
+          });
+          allUsers = Array.from(userMap.values());
+        }
+      }
+
+      function requestGoogleOAuthToken(interactive = true) {
+        return new Promise((resolve) => {
+          if (!window.google || !window.google.accounts || !window.google.accounts.oauth2 || !driveConfig.clientId) {
+            resolve(null);
+            return;
+          }
+          try {
+            googleTokenClient = window.google.accounts.oauth2.initTokenClient({
+              client_id: driveConfig.clientId,
+              scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email',
+              callback: async (tokenResponse) => {
+                if (tokenResponse && tokenResponse.access_token) {
+                  googleAccessToken = tokenResponse.access_token;
+                  try {
+                    const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                      headers: { Authorization: `Bearer ${googleAccessToken}` }
+                    });
+                    if (userInfoRes.ok) {
+                      const info = await userInfoRes.json();
+                      if (info.email) {
+                        driveConfig.email = info.email;
+                        saveDriveConfig();
+                      }
+                    }
+                  } catch (e) { /* opcional */ }
+                  resolve(googleAccessToken);
+                } else {
+                  resolve(null);
+                }
+              }
+            });
+            googleTokenClient.requestAccessToken({ prompt: interactive ? 'consent' : '' });
+          } catch (e) {
+            resolve(null);
+          }
+        });
+      }
+
+      // ---------------------------------------------------------
+      // 4. AUTENTICACIÓN SÍNCRONA Y CONTROL DE SESIÓN
+      // ---------------------------------------------------------
+      function saveActiveSession(userObj) {
+        const safeSession = {
+          id: userObj.id || userObj.username,
+          username: userObj.username,
+          displayName: userObj.displayName || userObj.username,
+          role: userObj.role || 'user'
+        };
+        try {
+          sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeSession));
+        } catch (e) { /* fallback en memoria */ }
+      }
+
+      function loadActiveSession() {
+        try {
+          const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          return parsed && parsed.username ? parsed : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function clearActiveSession() {
+        try {
+          sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        } catch (e) { /* noop */ }
+      }
+
+      function enterWorkspace(userObj, showWelcome = false) {
+        currentUser = {
+          id: userObj.id || userObj.username,
+          username: userObj.username,
+          displayName: userObj.displayName || userObj.username,
+          role: userObj.role || 'user'
+        };
+        saveActiveSession(currentUser);
+
+        const loginScreen = document.getElementById('login-screen');
+        const appShell = document.getElementById('app-shell');
+
+        loginScreen.classList.add('hidden');
+        loginScreen.classList.remove('flex');
+        appShell.classList.remove('hidden');
+        appShell.classList.add('flex');
+
+        applyRolePermissionsUI();
+        refreshAllViews();
+        updateSyncStatusUI();
+        switchTab('add');
+
+        if (showWelcome) {
+          showToast(`Bienvenido, ${currentUser.displayName}`);
+        }
+
+        if (driveConfig.linked && navigator.onLine && getPendingChangesCount() > 0) {
+          syncWithGoogleDrive(false);
+        }
+      }
+
+      function applyRolePermissionsUI() {
+        if (!currentUser) return;
+        const isAdmin = currentUser.role === 'admin';
+
+        document.getElementById('header-user-name').innerText = currentUser.displayName;
+        const roleBadge = document.getElementById('header-role-badge');
+        const securityNavBtn = document.getElementById('nav-btn-security');
+
+        if (isAdmin) {
+          roleBadge.innerText = 'ADMIN';
+          roleBadge.className = 'text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-900 text-emerald-400 tracking-wider shrink-0';
+          securityNavBtn.classList.remove('hidden');
+          securityNavBtn.classList.add('flex');
+        } else {
+          roleBadge.innerText = 'USUARIO';
+          roleBadge.className = 'text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 tracking-wider shrink-0';
+          securityNavBtn.classList.add('hidden');
+          securityNavBtn.classList.remove('flex');
+        }
+      }
+
+      function logoutUser() {
+        currentUser = null;
+        clearActiveSession();
+
+        document.getElementById('login-error-box').classList.add('hidden');
+        applyRememberedCredentialsToLoginForm();
+
+        const appShell = document.getElementById('app-shell');
+        const loginScreen = document.getElementById('login-screen');
+        appShell.classList.add('hidden');
+        appShell.classList.remove('flex');
+        loginScreen.classList.remove('hidden');
+        loginScreen.classList.add('flex');
+        updateSyncStatusUI();
+      }
+
+      document.getElementById('form-login').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const usernameInput = document.getElementById('login-username').value.trim().toLowerCase();
+        const passwordInput = document.getElementById('login-password').value.trim();
+        const rememberChecked = document.getElementById('login-remember-me').checked;
+        const errorBox = document.getElementById('login-error-box');
+        const errorText = document.getElementById('login-error-text');
+
+        errorBox.classList.add('hidden');
+
+        if (!usernameInput || !passwordInput) {
+          errorText.innerText = 'Completa usuario y contraseña.';
+          errorBox.classList.remove('hidden');
+          return;
+        }
+
+        const matchedUser = allUsers.find(
+          u => (u.username || '').trim().toLowerCase() === usernameInput
+        );
+
+        let authenticatedAccount = null;
+
+        if (matchedUser && String(matchedUser.password) === passwordInput) {
+          authenticatedAccount = matchedUser;
+        } else {
+          const adminInStore = allUsers.find(u => (u.username || '').toLowerCase() === 'admin');
+          const expectedAdminPass = adminInStore ? String(adminInStore.password) : DEFAULT_ADMIN_ACCOUNT.password;
+          if (usernameInput === 'admin' && passwordInput === expectedAdminPass) {
+            authenticatedAccount = adminInStore || DEFAULT_ADMIN_ACCOUNT;
+          }
+        }
+
+        if (authenticatedAccount) {
+          if (rememberChecked) {
+            saveRememberedCredentials(usernameInput, passwordInput);
+          } else {
+            clearRememberedCredentials();
+          }
+          enterWorkspace(authenticatedAccount, true);
+          return;
+        }
+
+        errorText.innerText = 'Usuario o contraseña incorrectos.';
+        errorBox.classList.remove('hidden');
+      });
+
+      // ---------------------------------------------------------
+      // 5. REGISTRO DE GASTOS Y COMPRESIÓN DE COMPROBANTE
+      // ---------------------------------------------------------
+      async function handleReceiptFileSelection(e) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+          showToast('Selecciona un archivo de imagen válido', 'error');
+          clearReceiptAttachment();
+          return;
+        }
+
+        const statusBadge = document.getElementById('receipt-status-badge');
+        statusBadge.innerText = 'Optimizando...';
+        statusBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700';
+
+        try {
+          const compressedDataUrl = await compressReceiptImage(file, 1000, 0.72);
+          currentReceiptDataUrl = compressedDataUrl;
+
+          const approxKB = Math.round((compressedDataUrl.length * 3) / 4 / 1024);
+          document.getElementById('receipt-preview-img').src = compressedDataUrl;
+          document.getElementById('receipt-size-info').innerText = `Comprobante optimizado (${approxKB} KB)`;
+          document.getElementById('receipt-upload-zone').classList.add('hidden');
+          document.getElementById('receipt-preview-box').classList.remove('hidden');
+
+          statusBadge.innerText = 'Adjunto OK';
+          statusBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+        } catch (err) {
+          showToast('No se pudo procesar la foto del comprobante', 'error');
+          clearReceiptAttachment();
+        }
+      }
+
+      function compressReceiptImage(file, maxDimension = 1000, quality = 0.72) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+              let { width, height } = img;
+              if (width > maxDimension || height > maxDimension) {
+                if (width > height) {
+                  height = Math.round((height * maxDimension) / width);
+                  width = maxDimension;
+                } else {
+                  width = Math.round((width * maxDimension) / height);
+                  height = maxDimension;
+                }
+              }
+
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, width, height);
+              ctx.drawImage(img, 0, 0, width, height);
+
+              resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = () => reject(new Error('Imagen inválida'));
+            img.src = event.target.result;
+          };
+          reader.onerror = () => reject(new Error('Error leyendo archivo'));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function clearReceiptAttachment() {
+        currentReceiptDataUrl = '';
+        const input = document.getElementById('input-receipt');
+        if (input) input.value = '';
+        document.getElementById('receipt-preview-img').src = '';
+        document.getElementById('receipt-preview-box').classList.add('hidden');
+        document.getElementById('receipt-upload-zone').classList.remove('hidden');
+
+        const statusBadge = document.getElementById('receipt-status-badge');
+        statusBadge.innerText = 'Obligatorio';
+        statusBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80';
+      }
+
+      document.getElementById('form-expense').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!currentUser) {
+          showToast('Sesión no activa', 'error');
+          return;
+        }
+
+        const amountRaw = document.getElementById('input-amount').value.trim();
+        const amount = Math.round(Number(amountRaw));
+        const category = document.getElementById('select-category').value.trim();
+        const date = document.getElementById('input-date').value.trim();
+        const note = document.getElementById('input-note').value.trim();
+
+        if (!amountRaw || !amount || amount <= 0 || isNaN(amount)) {
+          showToast('Ingresa un monto válido en Guaraníes', 'error');
+          document.getElementById('input-amount').focus();
+          return;
+        }
+        if (!category) {
+          showToast('Selecciona una categoría', 'error');
+          return;
+        }
+        if (!date) {
+          showToast('Selecciona la fecha del gasto', 'error');
+          return;
+        }
+        if (!note) {
+          showToast('Completa el concepto o detalle de compra', 'error');
+          document.getElementById('input-note').focus();
+          return;
+        }
+        if (!currentReceiptDataUrl) {
+          showToast('Debes subir la foto de la factura o comprobante', 'error');
+          return;
+        }
+
+        const newExpense = {
+          id: 'exp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          amount: amount,
+          currency: 'PYG',
+          category: category,
+          date: date,
+          userName: currentUser.displayName || currentUser.username,
+          usernameLogin: currentUser.username,
+          note: note,
+          receiptImage: currentReceiptDataUrl,
+          hasReceipt: true,
+          syncStatus: 'pending',
+          createdAt: new Date().toISOString()
+        };
+
+        allExpenses.unshift(newExpense);
+        allExpenses.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        saveLocalExpenses(allExpenses);
+
+        document.getElementById('input-amount').value = '';
+        document.getElementById('amount-preview').innerText = '₲ 0';
+        document.getElementById('input-note').value = '';
+        clearReceiptAttachment();
+
+        refreshAllViews();
+        updateSyncStatusUI();
+
+        if (driveConfig.linked && navigator.onLine) {
+          showToast(`Guardado y sincronizando: ${formatPYG(amount)}`);
+          syncWithGoogleDrive(false);
+        } else if (driveConfig.linked && !navigator.onLine) {
+          showToast(`Guardado localmente (en cola Drive): ${formatPYG(amount)}`);
+        } else {
+          showToast(`Gasto registrado: ${formatPYG(amount)}`);
+        }
+      });
+
+      function confirmDeleteExpense(id, amount, category) {
+        if (!currentUser || currentUser.role !== 'admin') {
+          showToast('Solo el administrador puede eliminar gastos', 'error');
+          return;
+        }
+
+        openCustomModal({
+          title: 'Eliminar Movimiento',
+          subtitle: `¿Confirmas eliminar el gasto de ${formatPYG(amount)} en ${category}?`,
+          icon: 'fa-trash-can',
+          iconBg: 'bg-rose-50 text-rose-600',
+          confirmText: 'Eliminar',
+          confirmColor: 'bg-rose-600 hover:bg-rose-700',
+          showInput: false,
+          onConfirm: () => {
+            allExpenses = allExpenses.filter(e => e.id !== id);
+            saveLocalExpenses(allExpenses);
+
+            if (driveConfig.linked) {
+              if (!driveConfig.deletedIds.includes(id)) {
+                driveConfig.deletedIds.push(id);
+                saveDriveConfig();
+              }
+              syncWithGoogleDrive(false);
+            }
+
+            refreshAllViews();
+            updateSyncStatusUI();
+            showToast('Gasto eliminado correctamente');
+          }
+        });
+      }
+
+      // ---------------------------------------------------------
+      // 6. SEGURIDAD: USUARIOS Y GOOGLE DRIVE (SOLO ADMIN)
+      // ---------------------------------------------------------
+      document.getElementById('form-create-user').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!currentUser || currentUser.role !== 'admin') {
+          showToast('Acceso denegado', 'error');
+          return;
+        }
+
+        const fullName = document.getElementById('new-user-fullname').value.trim();
+        const rawUsername = document.getElementById('new-user-username').value.trim().toLowerCase().replace(/\s+/g, '');
+        const password = document.getElementById('new-user-password').value.trim();
+
+        if (!fullName || !rawUsername || password.length < 4) {
+          showToast('Completa los datos (clave mín. 4 caracteres)', 'error');
+          return;
+        }
+
+        if (allUsers.some(u => (u.username || '').toLowerCase() === rawUsername)) {
+          showToast('Ese usuario ya está registrado', 'error');
+          return;
+        }
+
+        allUsers.push({
+          id: rawUsername,
+          username: rawUsername,
+          displayName: fullName,
+          password: password,
+          role: 'user',
+          syncStatus: 'pending'
+        });
+        saveLocalUsers(allUsers);
+        renderUsersList();
+        updateSyncStatusUI();
+
+        if (driveConfig.linked && navigator.onLine) {
+          syncWithGoogleDrive(false);
+        }
+
+        showToast(`Usuario "${rawUsername}" creado`);
+        document.getElementById('new-user-fullname').value = '';
+        document.getElementById('new-user-username').value = '';
+        document.getElementById('new-user-password').value = '';
+      });
+
+      function renderUsersList() {
+        const container = document.getElementById('users-list-container');
+        const displayList = allUsers.length > 0 ? allUsers : [{ ...DEFAULT_ADMIN_ACCOUNT }];
+        document.getElementById('users-count-badge').innerText = `${displayList.length}`;
+
+        container.innerHTML = displayList.map(u => {
+          const isMainAdmin = u.username === 'admin' || u.role === 'admin';
+          return `
+            <div class="p-3.5 rounded-2xl border ${isMainAdmin ? 'bg-emerald-50/40 border-emerald-200/80' : 'bg-slate-50 border-slate-200/80'} flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center space-x-1.5">
+                  <p class="text-xs font-extrabold text-slate-900 truncate">${escapeHTML(u.displayName || u.username)}</p>
+                  <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${isMainAdmin ? 'bg-slate-900 text-emerald-400' : 'bg-slate-200 text-slate-700'}">
+                    ${isMainAdmin ? 'Admin' : 'Usuario'}
+                  </span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">
+                  ID Acceso: <span class="font-bold text-slate-800">${escapeHTML(u.username)}</span> • Clave: <span class="font-mono text-slate-500">••••••</span>
+                </p>
+              </div>
+              <div class="flex items-center space-x-1.5 shrink-0">
+                <button type="button" data-action="change-pass" data-userid="${escapeHTML(u.id || u.username)}" data-username="${escapeHTML(u.username)}" title="Cambiar Contraseña" class="user-action-btn w-8 h-8 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-900 hover:text-white flex items-center justify-center transition shadow-2xs">
+                  <i class="fa-solid fa-key text-xs"></i>
+                </button>
+                ${!isMainAdmin ? `
+                  <button type="button" data-action="delete-user" data-userid="${escapeHTML(u.id || u.username)}" data-username="${escapeHTML(u.username)}" title="Eliminar Usuario" class="user-action-btn w-8 h-8 rounded-xl bg-white border border-slate-200 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center transition shadow-2xs">
+                    <i class="fa-solid fa-user-xmark text-xs"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function promptChangePassword(userId, username) {
+        if (!currentUser || currentUser.role !== 'admin') return;
+
+        openCustomModal({
+          title: 'Actualizar Contraseña',
+          subtitle: `Establecer nueva clave para "${username}"`,
+          icon: 'fa-key',
+          iconBg: 'bg-emerald-50 text-emerald-700',
+          confirmText: 'Guardar Clave',
+          confirmColor: 'bg-slate-900 hover:bg-slate-800',
+          showInput: true,
+          onConfirm: (newPass) => {
+            const cleanPass = (newPass || '').trim();
+            if (cleanPass.length < 4) {
+              showToast('La clave debe tener al menos 4 caracteres', 'error');
+              return false;
+            }
+            allUsers = allUsers.map(u =>
+              (u.username === username || u.id === userId)
+                ? { ...u, password: cleanPass, syncStatus: 'pending' }
+                : u
+            );
+            saveLocalUsers(allUsers);
+
+            const remembered = loadRememberedCredentials();
+            if (remembered && remembered.username.toLowerCase() === username.toLowerCase()) {
+              saveRememberedCredentials(remembered.username, cleanPass);
+            }
+
+            renderUsersList();
+            updateSyncStatusUI();
+
+            if (driveConfig.linked && navigator.onLine) {
+              syncWithGoogleDrive(false);
+            }
+            showToast(`Contraseña de "${username}" actualizada`);
+            return true;
+          }
+        });
+      }
+
+      function confirmDeleteUser(userId, username) {
+        if (!currentUser || currentUser.role !== 'admin') return;
+        if (username === 'admin') {
+          showToast('El administrador no puede ser eliminado', 'error');
+          return;
+        }
+
+        openCustomModal({
+          title: 'Revocar Acceso',
+          subtitle: `¿Eliminar definitivamente al usuario "${username}"?`,
+          icon: 'fa-user-xmark',
+          iconBg: 'bg-rose-50 text-rose-600',
+          confirmText: 'Eliminar Usuario',
+          confirmColor: 'bg-rose-600 hover:bg-rose-700',
+          showInput: false,
+          onConfirm: () => {
+            allUsers = allUsers.filter(u => u.username !== username && u.id !== userId);
+            saveLocalUsers(allUsers);
+
+            const remembered = loadRememberedCredentials();
+            if (remembered && remembered.username.toLowerCase() === username.toLowerCase()) {
+              clearRememberedCredentials();
+            }
+
+            renderUsersList();
+            updateSyncStatusUI();
+
+            if (driveConfig.linked && navigator.onLine) {
+              syncWithGoogleDrive(false);
+            }
+            showToast(`Usuario "${username}" eliminado`);
+          }
+        });
+      }
+
+      async function handleConnectDriveOAuth() {
+        if (!currentUser || currentUser.role !== 'admin') return;
+        const clientIdInput = document.getElementById('drive-client-id').value.trim();
+        if (!clientIdInput) {
+          showToast('Ingresa tu OAuth Client ID o usa Modo Simulación Drive', 'error');
+          document.getElementById('drive-client-id').focus();
+          return;
+        }
+
+        driveConfig.clientId = clientIdInput;
+        const token = await requestGoogleOAuthToken(true);
+        if (!token) {
+          showToast('No se completó la autorización OAuth con Google', 'error');
+          return;
+        }
+
+        driveConfig.linked = true;
+        driveConfig.mode = 'oauth';
+        if (!driveConfig.email) {
+          driveConfig.email = 'Cuenta Google Autorizada';
+        }
+        saveDriveConfig();
+        updateSyncStatusUI();
+        await syncWithGoogleDrive(true);
+      }
+
+      async function handleConnectDriveSimulation() {
+        if (!currentUser || currentUser.role !== 'admin') return;
+        driveConfig.linked = true;
+        driveConfig.mode = 'simulation';
+        driveConfig.email = 'admin.respaldo@gmail.com (Simulación)';
+        saveDriveConfig();
+        updateSyncStatusUI();
+        await syncWithGoogleDrive(true);
+      }
+
+      function handleUnlinkDrive() {
+        if (!currentUser || currentUser.role !== 'admin') return;
+        openCustomModal({
+          title: 'Desvincular Google Drive',
+          subtitle: 'Los datos actuales permanecerán seguros en el almacenamiento local.',
+          icon: 'fa-link-slash',
+          iconBg: 'bg-rose-50 text-rose-600',
+          confirmText: 'Desvincular',
+          confirmColor: 'bg-rose-600 hover:bg-rose-700',
+          showInput: false,
+          onConfirm: () => {
+            googleAccessToken = null;
+            driveConfig = {
+              linked: false,
+              mode: 'none',
+              clientId: driveConfig.clientId || '',
+              email: '',
+              fileId: '',
+              lastSyncAt: null,
+              deletedIds: []
+            };
+            saveDriveConfig();
+            updateSyncStatusUI();
+            refreshAllViews();
+            showToast('Cuenta de Google Drive desvinculada');
+          }
+        });
+      }
+
+      // ---------------------------------------------------------
+      // 7. VISTAS: HISTORIAL, REPORTES Y VISOR DE COMPROBANTES
+      // ---------------------------------------------------------
+      function refreshAllViews() {
+        const totalGeneral = allExpenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+        document.getElementById('card-total-general').innerText = formatPYG(totalGeneral);
+        document.getElementById('card-count-general').innerText = `${allExpenses.length} ${allExpenses.length === 1 ? 'movimiento' : 'movimientos'}`;
+
+        renderRecentList();
+        applyReportFilter();
+      }
+
+      function getSyncBadgeHTML(item) {
+        if (!driveConfig.linked) {
+          return `<span class="inline-flex items-center space-x-1 text-[9px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded"><i class="fa-solid fa-mobile-screen"></i><span>Local</span></span>`;
+        }
+        if (item.syncStatus === 'synced') {
+          return `<span class="inline-flex items-center space-x-1 text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 px-1.5 py-0.5 rounded"><i class="fa-solid fa-cloud-check"></i><span>Sincronizado</span></span>`;
+        }
+        return `<span class="inline-flex items-center space-x-1 text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70 px-1.5 py-0.5 rounded"><i class="fa-solid fa-clock"></i><span>Pendiente</span></span>`;
+      }
+
+      function renderRecentList() {
+        const container = document.getElementById('recent-expenses-container');
+        document.getElementById('recent-count').innerText = `${allExpenses.length} ${allExpenses.length === 1 ? 'gasto' : 'gastos'}`;
+
+        if (allExpenses.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-12 bg-white rounded-3xl corporate-shadow border border-slate-200/80">
+              <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-receipt text-xl"></i>
+              </div>
+              <p class="text-sm font-bold text-slate-700">Sin movimientos registrados</p>
+              <p class="text-xs text-slate-400 mt-1">Los gastos cargados aparecerán aquí</p>
+            </div>
+          `;
+          return;
+        }
+
+        const isAdmin = currentUser && currentUser.role === 'admin';
+
+        container.innerHTML = allExpenses.map(item => {
+          const author = resolveExpenseAuthor(item);
+          const hasReceipt = Boolean(item.receiptImage);
+          return `
+            <div class="bg-white p-3.5 rounded-2xl corporate-shadow border border-slate-200/80 flex items-center justify-between gap-2">
+              <div class="flex items-center space-x-3 min-w-0">
+                <div class="w-10 h-10 shrink-0 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center text-sm">
+                  ${getCategoryIcon(item.category)}
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center flex-wrap gap-1">
+                    <span class="text-[11px] font-extrabold text-slate-900 truncate">${escapeHTML(item.category)}</span>
+                    <span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-1.5 py-0.5 rounded-md truncate max-w-[130px]">
+                      ${escapeHTML(author.fullLabel)}
+                    </span>
+                    ${getSyncBadgeHTML(item)}
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-0.5 truncate">
+                    ${formatDateDisplay(item.date)} ${item.note ? `• <span class="text-slate-700 font-medium">${escapeHTML(item.note)}</span>` : ''}
+                  </p>
+                  <div class="mt-1.5">
+                    ${hasReceipt ? `
+                      <button type="button" data-action="view-receipt" data-expenseid="${escapeHTML(item.id)}" class="expense-action-btn inline-flex items-center space-x-1 text-[10px] font-bold bg-slate-900 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg transition">
+                        <i class="fa-solid fa-receipt text-emerald-400"></i>
+                        <span>Ver Comprobante</span>
+                      </button>
+                    ` : `
+                      <span class="inline-flex items-center space-x-1 text-[10px] font-semibold bg-slate-100 text-slate-400 px-2 py-0.5 rounded-md">
+                        <i class="fa-regular fa-image"></i>
+                        <span>Sin imagen adjunta</span>
+                      </span>
+                    `}
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-1.5 shrink-0">
+                <span class="text-sm font-extrabold text-slate-900 tabular-nums">${formatPYG(item.amount)}</span>
+                ${isAdmin ? `
+                  <button type="button" data-action="delete-expense" data-expenseid="${escapeHTML(item.id)}" data-amount="${Number(item.amount) || 0}" data-category="${escapeHTML(item.category)}" title="Eliminar gasto (Admin)" class="expense-action-btn w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function resolveExpenseAuthor(item) {
+        const rawLogin = (item.usernameLogin || '').trim();
+        const rawName = (item.userName || item.user || '').trim();
+
+        const matchedProfile = allUsers.find(u =>
+          (rawLogin && (u.username || '').toLowerCase() === rawLogin.toLowerCase()) ||
+          (rawName && ((u.displayName || '').toLowerCase() === rawName.toLowerCase() || (u.username || '').toLowerCase() === rawName.toLowerCase()))
+        );
+
+        const displayName = matchedProfile?.displayName || rawName || rawLogin || 'Usuario sin identificar';
+        const username = matchedProfile?.username || rawLogin || (rawName ? rawName.toLowerCase().replace(/\s+/g, '') : '');
+        const fullLabel = username && username.toLowerCase() !== displayName.toLowerCase()
+          ? `${displayName} (@${username})`
+          : displayName;
+
+        return { displayName, username, fullLabel };
+      }
+
+      function computeUserBreakdown(expensesList) {
+        const totalPeriod = expensesList.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+        const map = new Map();
+
+        expensesList.forEach(item => {
+          const author = resolveExpenseAuthor(item);
+          const key = (author.username || author.displayName).toLowerCase();
+          if (!map.has(key)) {
+            map.set(key, {
+              displayName: author.displayName,
+              username: author.username,
+              fullLabel: author.fullLabel,
+              count: 0,
+              total: 0,
+              percentage: 0
+            });
+          }
+          const entry = map.get(key);
+          entry.count += 1;
+          entry.total += Number(item.amount) || 0;
+        });
+
+        const breakdown = Array.from(map.values()).map(entry => ({
+          ...entry,
+          percentage: totalPeriod > 0 ? (entry.total / totalPeriod) * 100 : 0
+        }));
+
+        breakdown.sort((a, b) => b.total - a.total);
+        return { breakdown, totalPeriod };
+      }
+
+      function applyReportFilter() {
+        const startDate = document.getElementById('report-start').value;
+        const endDate = document.getElementById('report-end').value;
+        const searchQuery = (document.getElementById('report-search-input')?.value || '').trim().toLowerCase();
+        const receiptFilter = document.getElementById('report-receipt-filter')?.value || 'all';
+
+        filteredExpenses = allExpenses.filter(item => {
+          if (startDate && item.date < startDate) return false;
+          if (endDate && item.date > endDate) return false;
+
+          const hasReceipt = Boolean(item.receiptImage);
+          if (receiptFilter === 'with_receipt' && !hasReceipt) return false;
+          if (receiptFilter === 'without_receipt' && hasReceipt) return false;
+
+          if (searchQuery) {
+            const author = resolveExpenseAuthor(item);
+            const haystack = [
+              item.category || '',
+              item.note || '',
+              item.date || '',
+              formatDateDisplay(item.date),
+              author.displayName,
+              author.username
+            ].join(' ').toLowerCase();
+            if (!haystack.includes(searchQuery)) return false;
+          }
+
+          return true;
+        });
+
+        const total = filteredExpenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+        const avg = filteredExpenses.length > 0 ? Math.round(total / filteredExpenses.length) : 0;
+
+        document.getElementById('report-total-amount').innerText = formatPYG(total);
+        document.getElementById('report-total-count').innerText = filteredExpenses.length;
+        document.getElementById('report-avg-amount').innerText = formatPYG(avg);
+        document.getElementById('report-filtered-badge').innerText = `${filteredExpenses.length} reg.`;
+
+        renderReportUsersBreakdown();
+        renderReportDetailList();
+        renderCategoryChart();
+      }
+
+      function renderReportUsersBreakdown() {
+        const container = document.getElementById('report-users-container');
+        const countBadge = document.getElementById('report-users-count');
+        const { breakdown } = computeUserBreakdown(filteredExpenses);
+
+        countBadge.innerText = `${breakdown.length} ${breakdown.length === 1 ? 'usuario' : 'usuarios'}`;
+
+        if (breakdown.length === 0) {
+          container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Sin responsables registrados en el período.</p>`;
+          return;
+        }
+
+        container.innerHTML = breakdown.map(u => {
+          const pctFormatted = u.percentage.toFixed(1);
+          return `
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="text-xs font-extrabold text-slate-900 truncate">
+                    ${escapeHTML(u.displayName)}
+                    ${u.username && u.username.toLowerCase() !== u.displayName.toLowerCase()
+                      ? `<span class="text-[10px] font-semibold text-slate-500 ml-1">@${escapeHTML(u.username)}</span>`
+                      : ''}
+                  </p>
+                  <p class="text-[10px] text-slate-500 font-medium">
+                    ${u.count} ${u.count === 1 ? 'gasto cargado' : 'gastos cargados'} • ${pctFormatted}% del período
+                  </p>
+                </div>
+                <span class="text-xs font-extrabold text-emerald-700 tabular-nums shrink-0">${formatPYG(u.total)}</span>
+              </div>
+              <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-full bg-emerald-600 rounded-full" style="width: ${Math.min(100, Math.max(2, u.percentage))}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function renderReportDetailList() {
+        const container = document.getElementById('report-list-container');
+        if (filteredExpenses.length === 0) {
+          container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No hay registros que coincidan con el filtro aplicado.</p>`;
+          return;
+        }
+
+        container.innerHTML = filteredExpenses.map(item => {
+          const author = resolveExpenseAuthor(item);
+          const hasReceipt = Boolean(item.receiptImage);
+          return `
+            <div class="py-3 flex items-center justify-between gap-2.5">
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-extrabold text-slate-900 truncate">
+                  ${escapeHTML(item.category)} <span class="font-bold text-emerald-700">• ${escapeHTML(author.fullLabel)}</span>
+                </p>
+                <p class="text-[11px] text-slate-500 truncate mt-0.5">
+                  ${formatDateDisplay(item.date)} ${item.note ? `• <span class="text-slate-700 font-medium">${escapeHTML(item.note)}</span>` : ''}
+                </p>
+                <div class="mt-1.5">
+                  ${hasReceipt ? `
+                    <button type="button" data-action="view-receipt" data-expenseid="${escapeHTML(item.id)}" class="expense-action-btn inline-flex items-center space-x-1.5 text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg shadow-2xs transition">
+                      <i class="fa-solid fa-eye"></i>
+                      <span>Ver Comprobante</span>
+                    </button>
+                  ` : `
+                    <span class="inline-flex items-center space-x-1 text-[10px] font-semibold bg-slate-100 text-slate-400 px-2 py-0.5 rounded-md">
+                      <i class="fa-regular fa-image"></i>
+                      <span>Sin comprobante</span>
+                    </span>
+                  `}
+                </div>
+              </div>
+              <span class="text-xs font-extrabold text-slate-900 tabular-nums shrink-0">${formatPYG(item.amount)}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function renderCategoryChart() {
+        const ctx = document.getElementById('categoryChart');
+        const emptyMsg = document.getElementById('chart-empty-msg');
+
+        if (categoryChartInstance) {
+          categoryChartInstance.destroy();
+          categoryChartInstance = null;
+        }
+
+        if (filteredExpenses.length === 0 || typeof Chart === 'undefined') {
+          ctx.classList.add('hidden');
+          emptyMsg.classList.remove('hidden');
+          return;
+        }
+
+        ctx.classList.remove('hidden');
+        emptyMsg.classList.add('hidden');
+
+        const totalsByCat = {};
+        filteredExpenses.forEach(item => {
+          totalsByCat[item.category] = (totalsByCat[item.category] || 0) + (Number(item.amount) || 0);
+        });
+
+        const labels = Object.keys(totalsByCat);
+        const data = Object.values(totalsByCat);
+        const colors = ['#0f172a', '#059669', '#0284c7', '#d97706', '#4f46e5', '#0d9488', '#64748b', '#e11d48'];
+
+        categoryChartInstance = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: data,
+              backgroundColor: colors.slice(0, labels.length),
+              borderWidth: 2,
+              borderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '64%',
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: {
+                  boxWidth: 10,
+                  font: { size: 11, family: 'Inter', weight: '600' },
+                  color: '#334155'
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: (context) => ` ${context.label}: ${formatPYG(context.raw)}`
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // ---------------------------------------------------------
+      // 8. EXPORTACIÓN DE REPORTE A PDF (PYG + RESPONSABLES)
+      // ---------------------------------------------------------
+      function downloadReportPDF() {
+        if (filteredExpenses.length === 0) {
+          showToast('No hay gastos filtrados para exportar', 'error');
+          return;
+        }
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+          showToast('Librería PDF no disponible sin conexión inicial', 'error');
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const docPdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+        const startDate = document.getElementById('report-start').value || 'Inicio';
+        const endDate = document.getElementById('report-end').value || 'Actual';
+        const { breakdown, totalPeriod } = computeUserBreakdown(filteredExpenses);
+        const emitterAuthor = currentUser ? resolveExpenseAuthor(currentUser) : { fullLabel: 'Sistema' };
+
+        docPdf.setFillColor(15, 23, 42);
+        docPdf.rect(0, 0, 210, 34, 'F');
+        docPdf.setTextColor(255, 255, 255);
+        docPdf.setFont('helvetica', 'bold');
+        docPdf.setFontSize(16);
+        docPdf.text('ControlGastos PY • Informe Ejecutivo de Gastos', 14, 15);
+
+        docPdf.setFont('helvetica', 'normal');
+        docPdf.setFontSize(9.5);
+        docPdf.setTextColor(203, 213, 225);
+        docPdf.text(`Período: ${formatDateDisplay(startDate)} al ${formatDateDisplay(endDate)}  |  Moneda: Guaraníes (PYG)`, 14, 23);
+        docPdf.text(`Emitido por: ${emitterAuthor.fullLabel}  |  Fecha emisión: ${new Date().toLocaleDateString('es-PY')}`, 14, 29);
+
+        docPdf.setFillColor(241, 245, 249);
+        docPdf.roundedRect(14, 39, 182, 15, 3, 3, 'F');
+        docPdf.setTextColor(15, 23, 42);
+        docPdf.setFont('helvetica', 'bold');
+        docPdf.setFontSize(11);
+        docPdf.text(`Total del Período: ${formatPYG(totalPeriod)}`, 18, 48.5);
+        docPdf.setFont('helvetica', 'normal');
+        docPdf.setFontSize(9.5);
+        docPdf.text(`Registros: ${filteredExpenses.length}  |  Responsables: ${breakdown.length}`, 126, 48.5);
+
+        docPdf.setFont('helvetica', 'bold');
+        docPdf.setFontSize(10.5);
+        docPdf.setTextColor(15, 23, 42);
+        docPdf.text('1. Resumen por Usuario Responsable', 14, 62);
+
+        const userSummaryRows = breakdown.map(u => [
+          u.fullLabel,
+          String(u.count),
+          `${u.percentage.toFixed(1)}%`,
+          formatPYG(u.total)
+        ]);
+
+        docPdf.autoTable({
+          startY: 65,
+          head: [['Responsable / Usuario', 'Cant. Gastos', '% del Total', 'Monto Total (PYG)']],
+          body: userSummaryRows,
+          foot: [['TOTAL GENERAL DEL PERÍODO', String(filteredExpenses.length), '100.0%', formatPYG(totalPeriod)]],
+          theme: 'grid',
+          headStyles: { fillColor: [5, 150, 105], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+          bodyStyles: { fontSize: 8.8, textColor: [30, 41, 59] },
+          footStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: 'bold', fontSize: 9 },
+          columnStyles: {
+            0: { cellWidth: 84 },
+            1: { cellWidth: 28, halign: 'center' },
+            2: { cellWidth: 30, halign: 'right' },
+            3: { cellWidth: 40, halign: 'right', fontStyle: 'bold' }
+          },
+          margin: { left: 14, right: 14 }
+        });
+
+        const detailTitleY = (docPdf.lastAutoTable?.finalY || 95) + 9;
+        docPdf.setFont('helvetica', 'bold');
+        docPdf.setFontSize(10.5);
+        docPdf.setTextColor(15, 23, 42);
+        docPdf.text('2. Detalle Cronológico de Movimientos', 14, detailTitleY);
+
+        const tableRows = filteredExpenses.map(item => {
+          const author = resolveExpenseAuthor(item);
+          return [
+            formatDateDisplay(item.date),
+            author.fullLabel,
+            item.category || '-',
+            item.note || '-',
+            item.receiptImage ? 'Adjunto' : 'Sin adjunto',
+            formatPYG(item.amount)
+          ];
+        });
+
+        docPdf.autoTable({
+          startY: detailTitleY + 3,
+          head: [['Fecha', 'Responsable / Usuario', 'Categoría', 'Detalle', 'Comprobante', 'Monto (PYG)']],
+          body: tableRows,
+          theme: 'striped',
+          headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: 'bold', fontSize: 8.5 },
+          bodyStyles: { fontSize: 8, textColor: [30, 41, 59] },
+          columnStyles: {
+            0: { cellWidth: 20 },
+            1: { cellWidth: 38, fontStyle: 'bold' },
+            2: { cellWidth: 26 },
+            3: { cellWidth: 44 },
+            4: { cellWidth: 22, halign: 'center' },
+            5: { cellWidth: 32, halign: 'right', fontStyle: 'bold' }
+          },
+          margin: { left: 14, right: 14 }
+        });
+
+        docPdf.save(`Reporte_Gastos_PYG_${startDate}_a_${endDate}.pdf`);
+        showToast('Reporte PDF descargado');
+      }
+
+      // ---------------------------------------------------------
+      // 9. VISOR MODAL DE COMPROBANTE FOTOGRÁFICO
+      // ---------------------------------------------------------
+      function openReceiptViewer(expenseId) {
+        const expense = allExpenses.find(e => e.id === expenseId);
+        if (!expense || !expense.receiptImage) {
+          showToast('Este movimiento no posee imagen adjunta', 'error');
+          return;
+        }
+
+        const author = resolveExpenseAuthor(expense);
+        document.getElementById('viewer-receipt-img').src = expense.receiptImage;
+        document.getElementById('viewer-receipt-subtitle').innerText = `ID: ${expense.id.slice(0, 10).toUpperCase()} • ${formatDateDisplay(expense.date)}`;
+        document.getElementById('viewer-receipt-amount').innerText = formatPYG(expense.amount);
+        document.getElementById('viewer-receipt-category').innerText = expense.category || 'Sin categoría';
+        document.getElementById('viewer-receipt-user').innerText = author.fullLabel;
+        document.getElementById('viewer-receipt-date').innerText = formatDateDisplay(expense.date);
+        document.getElementById('viewer-receipt-note').innerText = expense.note || 'Sin detalle adicional';
+
+        const downloadBtn = document.getElementById('viewer-download-btn');
+        downloadBtn.onclick = () => {
+          const link = document.createElement('a');
+          link.href = expense.receiptImage;
+          const safeUser = (author.username || 'usuario').replace(/[^a-z0-9_-]/gi, '_');
+          link.download = `Comprobante_${expense.date}_${safeUser}.jpg`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          showToast('Descargando imagen del comprobante');
+        };
+
+        document.getElementById('receipt-viewer-modal').classList.remove('hidden');
+      }
+
+      function closeReceiptViewer() {
+        document.getElementById('receipt-viewer-modal').classList.add('hidden');
+        document.getElementById('viewer-receipt-img').src = '';
+      }
+
+      // ---------------------------------------------------------
+      // 10. NAVEGACIÓN, MODALES Y UTILIDADES
+      // ---------------------------------------------------------
+      function switchTab(tab) {
+        if (tab === 'security' && (!currentUser || currentUser.role !== 'admin')) {
+          return;
+        }
+
+        const tabs = ['add', 'list', 'reports', 'security'];
+        tabs.forEach(t => {
+          const view = document.getElementById(`view-${t}`);
+          const btn = document.getElementById(`nav-btn-${t}`);
+          const pill = document.getElementById(`nav-pill-${t}`);
+          if (!view || !btn || !pill) return;
+
+          if (t === tab) {
+            view.classList.remove('hidden');
+            btn.classList.add('text-slate-900');
+            btn.classList.remove('text-slate-400');
+            pill.classList.add('bg-emerald-100', 'text-emerald-800');
+            pill.classList.remove('bg-transparent');
+          } else {
+            view.classList.add('hidden');
+            btn.classList.remove('text-slate-900');
+            btn.classList.add('text-slate-400');
+            pill.classList.remove('bg-emerald-100', 'text-emerald-800');
+            pill.classList.add('bg-transparent');
+          }
+        });
+
+        if (tab === 'reports') applyReportFilter();
+        if (tab === 'security' && currentUser?.role === 'admin') {
+          renderDriveAdminPanel();
+          renderUsersList();
+        }
+      }
+
+      function openCustomModal({ title, subtitle, icon, iconBg, confirmText, confirmColor, showInput, onConfirm }) {
+        const modal = document.getElementById('custom-modal');
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-subtitle').innerText = subtitle;
+
+        const iconBox = document.getElementById('modal-icon-box');
+        iconBox.className = `w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${iconBg}`;
+        document.getElementById('modal-icon').className = `fa-solid ${icon}`;
+
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+        confirmBtn.innerText = confirmText;
+        confirmBtn.className = `py-2.5 text-white rounded-xl text-xs font-bold shadow-sm transition ${confirmColor}`;
+
+        const inputWrapper = document.getElementById('modal-input-wrapper');
+        const inputField = document.getElementById('modal-input');
+        inputField.value = '';
+        if (showInput) {
+          inputWrapper.classList.remove('hidden');
+        } else {
+          inputWrapper.classList.add('hidden');
+        }
+
+        confirmBtn.onclick = async () => {
+          const result = await onConfirm(inputField.value);
+          if (result !== false) {
+            closeCustomModal();
+          }
+        };
+
+        modal.classList.remove('hidden');
+        if (showInput) setTimeout(() => inputField.focus(), 50);
+      }
+
+      function closeCustomModal() {
+        document.getElementById('custom-modal').classList.add('hidden');
+      }
+
+      function showToast(msg, type = 'success') {
+        const toast = document.getElementById('toast');
+        const icon = document.getElementById('toast-icon');
+        document.getElementById('toast-msg').innerText = msg;
+
+        icon.className = type === 'error'
+          ? 'fa-solid fa-circle-exclamation text-rose-400'
+          : 'fa-solid fa-circle-check text-emerald-400';
+
+        toast.classList.remove('hidden');
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 3200);
+      }
+
+      function formatDateDisplay(isoDate) {
+        if (!isoDate || !isoDate.includes('-')) return isoDate;
+        const [y, m, d] = isoDate.split('-');
+        return `${d}/${m}/${y}`;
+      }
+
+      function getCategoryIcon(category) {
+        const icons = {
+          'Alimentación': '<i class="fa-solid fa-utensils"></i>',
+          'Transporte': '<i class="fa-solid fa-car-side"></i>',
+          'Combustible': '<i class="fa-solid fa-gas-pump"></i>',
+          'Insumos/Oficina': '<i class="fa-solid fa-boxes-stacked"></i>',
+          'Servicios': '<i class="fa-solid fa-bolt"></i>',
+          'Mantenimiento': '<i class="fa-solid fa-screwdriver-wrench"></i>',
+          'Viáticos': '<i class="fa-solid fa-briefcase"></i>',
+          'Otros': '<i class="fa-solid fa-receipt"></i>'
+        };
+        return icons[category] || '<i class="fa-solid fa-receipt"></i>';
+      }
+
+      function escapeHTML(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      // ---------------------------------------------------------
+      // 11. ARRANQUE DEL SISTEMA Y LISTENERS DE RED
+      // ---------------------------------------------------------
+      function bootstrapApp() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('input-date').value = today;
+
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+        document.getElementById('report-start').value = firstDay;
+        document.getElementById('report-end').value = today;
+
+        applyRememberedCredentialsToLoginForm();
+
+        document.getElementById('login-remember-me').addEventListener('change', (e) => {
+          if (!e.target.checked) {
+            clearRememberedCredentials();
+          }
+        });
+
+        document.getElementById('input-amount').addEventListener('input', (e) => {
+          const val = parseInt(e.target.value, 10);
+          document.getElementById('amount-preview').innerText = isNaN(val) || val < 0 ? '₲ 0' : formatPYG(val);
+        });
+
+        document.getElementById('btn-toggle-login-pass').addEventListener('click', (e) => {
+          const input = document.getElementById('login-password');
+          const icon = e.currentTarget.querySelector('i');
+          if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'fa-solid fa-eye-slash text-xs';
+          } else {
+            input.type = 'password';
+            icon.className = 'fa-solid fa-eye text-xs';
+          }
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', logoutUser);
+        document.getElementById('btn-header-sync-now').addEventListener('click', () => syncWithGoogleDrive(true));
+
+        document.getElementById('input-receipt').addEventListener('change', handleReceiptFileSelection);
+        document.getElementById('btn-clear-receipt').addEventListener('click', clearReceiptAttachment);
+
+        document.getElementById('btn-range-today').addEventListener('click', () => {
+          const currentDay = new Date().toISOString().split('T')[0];
+          document.getElementById('report-start').value = currentDay;
+          document.getElementById('report-end').value = currentDay;
+          applyReportFilter();
+        });
+        document.getElementById('btn-range-month').addEventListener('click', () => {
+          const d = new Date();
+          const startM = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
+          const endM = d.toISOString().split('T')[0];
+          document.getElementById('report-start').value = startM;
+          document.getElementById('report-end').value = endM;
+          applyReportFilter();
+        });
+        document.getElementById('btn-range-all').addEventListener('click', () => {
+          document.getElementById('report-start').value = '';
+          document.getElementById('report-end').value = '';
+          applyReportFilter();
+        });
+
+        document.getElementById('btn-filter-reports').addEventListener('click', applyReportFilter);
+        document.getElementById('btn-export-pdf').addEventListener('click', downloadReportPDF);
+        document.getElementById('report-search-input').addEventListener('input', applyReportFilter);
+        document.getElementById('report-receipt-filter').addEventListener('change', applyReportFilter);
+
+        document.getElementById('btn-connect-drive-oauth').addEventListener('click', handleConnectDriveOAuth);
+        document.getElementById('btn-connect-drive-sim').addEventListener('click', handleConnectDriveSimulation);
+        document.getElementById('btn-sync-drive-manual').addEventListener('click', () => syncWithGoogleDrive(true));
+        document.getElementById('btn-unlink-drive').addEventListener('click', handleUnlinkDrive);
+
+        document.getElementById('modal-cancel-btn').addEventListener('click', closeCustomModal);
+        document.getElementById('btn-close-viewer-top').addEventListener('click', closeReceiptViewer);
+        document.getElementById('btn-close-viewer-bottom').addEventListener('click', closeReceiptViewer);
+
+        document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+          btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+
+        document.addEventListener('click', (e) => {
+          const expenseBtn = e.target.closest('.expense-action-btn');
+          if (expenseBtn) {
+            const action = expenseBtn.dataset.action;
+            const expenseId = expenseBtn.dataset.expenseid;
+            if (action === 'view-receipt') {
+              openReceiptViewer(expenseId);
+            } else if (action === 'delete-expense') {
+              confirmDeleteExpense(expenseId, Number(expenseBtn.dataset.amount), expenseBtn.dataset.category);
+            }
+            return;
+          }
+
+          const userBtn = e.target.closest('.user-action-btn');
+          if (userBtn) {
+            const action = userBtn.dataset.action;
+            const userId = userBtn.dataset.userid;
+            const username = userBtn.dataset.username;
+            if (action === 'change-pass') {
+              promptChangePassword(userId, username);
+            } else if (action === 'delete-user') {
+              confirmDeleteUser(userId, username);
+            }
+          }
+        });
+
+        window.addEventListener('online', () => {
+          updateSyncStatusUI();
+          if (driveConfig.linked && getPendingChangesCount() > 0) {
+            syncWithGoogleDrive(false);
+          }
+        });
+        window.addEventListener('offline', () => {
+          updateSyncStatusUI();
+        });
+
+        const restoredSession = loadActiveSession();
+        if (restoredSession) {
+          enterWorkspace(restoredSession, false);
+        } else {
+          updateSyncStatusUI();
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootstrapApp);
+      } else {
+        bootstrapApp();
+      }
+    })();
+  </script>
+</body>
+</html>
